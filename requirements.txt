@@ -1,0 +1,4 @@
+Django==4.2.11
+PyMySQL==1.1.0
+# Alternativa si PyMySQL no funciona:
+# mysqlclient==2.2.0 
