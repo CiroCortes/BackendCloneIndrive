@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 import pymysql
 ## importamos el timedelta para el token (expiracion)
 from datetime import timedelta
@@ -33,7 +34,10 @@ SECRET_KEY = 'django-insecure-y3qmu-z8vt1##b3@dnu$h-ix-f5y8hnr*s=%q9(ahz(%2&_j3$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.10']
+GLOBAL_IP = '192.168.1.10'
+GLOBAL_HOST = '3000'
+
+ALLOWED_HOSTS = [GLOBAL_IP]
 
 
 # Application definition
@@ -46,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'users',
     'authentication',
     'roles',
@@ -121,20 +126,24 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-     ##'DEFAULT_PERMISSION_CLASSES': [
-     ##   'rest_framework.permissions.IsAuthenticated',
-     ## ],
+        ## ojo que cambiamos el nombre del archivo, por que el nombre del archivo es el mismo que el nombre del archivo de la clase
+        'authentication.customJWTAuthentication.CustomJWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated'
+    ),
 }
+
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=3),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'id',
 }
 
 

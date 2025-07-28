@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from roles.models import Role
 from roles.serializers import RoleSerializer
@@ -8,11 +9,15 @@ from users.models import User, UserHasRole
 import bcrypt
 from users.serializers import UserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework.permissions import AllowAny
+from django.conf import settings
 
 # Create your views here.
 
+
+
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
@@ -22,9 +27,15 @@ def register(request):
         UserHasRole.objects.create(id_user=user, id_rol=client_role)
         roles = Role.objects.filter(userhasrole__id_user=user)
         roles_serializer = RoleSerializer(roles, many=True)
+        refresh_token = getCustomTokenForUser(user)
+        access_token = str(refresh_token.access_token)
         response_data = {
-            **serializer.data,
-            'roles' : roles_serializer.data
+            "user":{
+                **serializer.data,
+                'roles' : roles_serializer.data
+
+            },
+            'token': 'Bearer ' + access_token
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
     error_messages = []
@@ -39,7 +50,16 @@ def register(request):
     return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
 
 
+def getCustomTokenForUser(user):
+    refresh_token = RefreshToken.for_user(user)
+    ## el profe lo hizo  : del refresh_token.payload['user_id']
+    refresh_token.payload['id'] = user.id
+    refresh_token.payload['name'] = user.name
+    return refresh_token    
+
+
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login(request):
     email = request.data.get('email')
     password = request.data.get('password')
@@ -65,7 +85,7 @@ def login(request):
            )
 
     if  bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-            refresh_token = RefreshToken.for_user(user)
+            refresh_token = getCustomTokenForUser(user)
             access_token = str(refresh_token.access_token)
             roles = Role.objects.filter(userhasrole__id_user=user)
             roles_serializer = RoleSerializer(roles, many=True)
@@ -76,7 +96,8 @@ def login(request):
                     'lastname': user.lastname,
                     'email': user.email,
                     'phone': user.phone,
-                    'image': user.image,
+                    ##'image': user.image, esto para que pueda ser nula en el frontend
+                    'image': f'http://{settings.GLOBAL_IP}:{settings.GLOBAL_HOST}{user.image}' if user.image else None,
                     'notification_token': user.notification_token,
                     'roles': roles_serializer.data,
 
@@ -88,7 +109,7 @@ def login(request):
     else:
           return Response(
             {
-             "message": "Email and password are required",
+             "message": "Email or password are not valid",
              "statusCode" : status.HTTP_401_UNAUTHORIZED
             },
              status=status.HTTP_401_UNAUTHORIZED
