@@ -39,4 +39,8 @@ __pycache__/
 Thumbs.db
 
 # Archivos de migraciones (opcional, si no quieres subirlas)
-# users/migrations/ 
+# users/migrations/
+
+# Archivos de media (imágenes subidas por usuarios)
+media/
+uploads/ 
