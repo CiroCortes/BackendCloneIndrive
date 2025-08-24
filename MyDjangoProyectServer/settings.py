@@ -1,3 +1,4 @@
+
 """
 Django settings for MyDjangoProyectServer project.
 
@@ -14,12 +15,14 @@ import os
 import pymysql
 ## importamos el timedelta para el token (expiracion)
 from datetime import timedelta
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env
+load_dotenv()
 
 pymysql.install_as_MySQLdb()
 
 from pathlib import Path
-
-import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,13 +32,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-y3qmu-z8vt1##b3@dnu$h-ix-f5y8hnr*s=%q9(ahz(%2&_j3$'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-y3qmu-z8vt1##b3@dnu$h-ix-f5y8hnr*s=%q9(ahz(%2&_j3$')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-GLOBAL_IP = '192.168.1.10'
-GLOBAL_HOST = '3000'
+GLOBAL_IP = os.getenv('GLOBAL_IP', '192.168.1.3')
+GLOBAL_HOST = os.getenv('GLOBAL_HOST', '3000')
 
 ALLOWED_HOSTS = [GLOBAL_IP]
 
@@ -94,11 +97,11 @@ WSGI_APPLICATION = 'MyDjangoProyectServer.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'djagoBackend_db',
-        'USER': 'root',
-        'PASSWORD': '627602',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.getenv('DB_NAME', 'djagoBackend_db'),
+        'USER': os.getenv('DB_USER', 'root'),
+        'PASSWORD': os.getenv('DB_PASSWORD', '627602'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4',
         },
@@ -135,7 +138,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=3),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=int(os.getenv('JWT_ACCESS_TOKEN_LIFETIME_HOURS', '3'))),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
