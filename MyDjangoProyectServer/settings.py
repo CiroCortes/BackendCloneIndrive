@@ -37,10 +37,13 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-y3qmu-z8vt1##b3@dnu$h-ix-f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-GLOBAL_IP = os.getenv('GLOBAL_IP', '192.168.1.3')
-GLOBAL_HOST = os.getenv('GLOBAL_HOST', '3000')
+GLOBAL_IP = os.getenv('GLOBAL_IP', '192.168.1.11')
+GLOBAL_HOST = os.getenv('GLOBAL_HOST', '8000')
 
 ALLOWED_HOSTS = [GLOBAL_IP]
+
+# Permitir URLs sin barra diagonal final para compatibilidad con aplicaciones móviles
+APPEND_SLASH = False
 
 
 # Application definition

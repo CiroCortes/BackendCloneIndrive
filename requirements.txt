@@ -2,5 +2,8 @@ Django==4.2.11
 PyMySQL==1.1.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.0
+python-dotenv==1.1.1
+setuptools==80.9.0
+bcrypt==4.3.0
 # Alternativa si PyMySQL no funciona:
 # mysqlclient==2.2.0 
